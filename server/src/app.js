@@ -14,25 +14,21 @@ const communityRoutes = require("./routes/communityRoutes");
 
 const app = express();
 
-/* =======================
-   SECURITY & MIDDLEWARE
-======================= */
+/* ===================== SECURITY MIDDLEWARE ===================== */
 app.use(helmet());
-app.use(express.json());
 app.use(morgan("dev"));
+app.use(express.json());
 
-/* =======================
-   CORS (FINAL FIX)
-======================= */
+/* ===================== CORS (FIXED FOR RENDER) ===================== */
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://ridesare-frontend.onrender.com",
+  "http://localhost:5173",                 // local dev
+  "https://ridesare-frontend.onrender.com" // production frontend
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow Postman / server-to-server / same-origin
+      // allow server-to-server & Postman
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -42,21 +38,19 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-/* =======================
-   RATE LIMIT (AUTH)
-======================= */
+/* ===================== RATE LIMITER ===================== */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: "Too many requests, please try again later",
+  message: "Too many requests. Please try again later.",
 });
 
-/* =======================
-   ROUTES
-======================= */
+/* ===================== API ROUTES ===================== */
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
@@ -64,11 +58,18 @@ app.use("/api/sos", sosRoutes);
 app.use("/api/driver", driverRoutes);
 app.use("/api/community", communityRoutes);
 
-/* =======================
-   HEALTH CHECK
-======================= */
+/* ===================== HEALTH CHECK ===================== */
 app.get("/", (req, res) => {
-  res.status(200).send("Carpool API is running 🚗");
+  res.status(200).send("🚗 RideShare API is running");
+});
+
+/* ===================== ERROR HANDLER ===================== */
+app.use((err, req, res, next) => {
+  console.error("❌ ERROR:", err.message);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Server error",
+  });
 });
 
 module.exports = app;
