@@ -1,0 +1,78 @@
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../utils/axios";
+
+export default function DriverProfilePage() {
+  const { user, refreshProfile } = useAuth();
+
+  const [profile, setProfile] = useState({
+    workingAt: user?.workingAt || "",
+    address: user?.address || "",
+  });
+
+  const updateProfile = async (e) => {
+    e.preventDefault();
+    await api.put("/users/me", profile);
+    await refreshProfile();
+    alert("Profile updated");
+  };
+
+  return (
+    <div className="bg-slate-50 py-10">
+      <div className="max-w-lg mx-auto px-4">
+        <form
+          onSubmit={updateProfile}
+          className="bg-white rounded-2xl shadow-sm p-6 space-y-5"
+        >
+          <h2 className="text-xl font-semibold text-slate-900">
+            Driver Profile
+          </h2>
+
+          {/* FULL NAME (READ ONLY) */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              Full Name
+            </label>
+            <input
+              value={user?.name || ""}
+              disabled
+              className="w-full rounded-lg border bg-slate-100 px-3 py-2 text-sm"
+            />
+          </div>
+
+          {/* WORKING AT */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              Working at
+            </label>
+            <input
+              value={profile.workingAt}
+              onChange={(e) =>
+                setProfile({ ...profile, workingAt: e.target.value })
+              }
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+            />
+          </div>
+
+          {/* ADDRESS */}
+          <div>
+            <label className="block text-sm font-medium text-slate-600 mb-1">
+              Address
+            </label>
+            <input
+              value={profile.address}
+              onChange={(e) =>
+                setProfile({ ...profile, address: e.target.value })
+              }
+              className="w-full rounded-lg border px-3 py-2 text-sm"
+            />
+          </div>
+
+          <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-medium">
+            Save Profile
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
