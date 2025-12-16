@@ -4,44 +4,71 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
+// Routes
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const sosRoutes = require("./routes/sosRoutes");
-const userRoutes = require("./routes/userRoutes"); // ✅ ADD THIS
+const userRoutes = require("./routes/userRoutes");
 const driverRoutes = require("./routes/driverRoutes");
+const communityRoutes = require("./routes/communityRoutes");
 
 const app = express();
 
-// Middlewares
+/* =======================
+   SECURITY & MIDDLEWARE
+======================= */
 app.use(helmet());
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
-    credentials: true,
-  })
-);
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Rate limiter for auth routes
+/* =======================
+   CORS (FINAL FIX)
+======================= */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ridesare-frontend.onrender.com",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow Postman / server-to-server / same-origin
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
+/* =======================
+   RATE LIMIT (AUTH)
+======================= */
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 mins
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  message: "Too many requests from this IP, please try again later",
+  message: "Too many requests, please try again later",
 });
 
-// Routes
+/* =======================
+   ROUTES
+======================= */
 app.use("/api/auth", authLimiter, authRoutes);
-app.use("/api/users", userRoutes); // ✅ THIS FIXES YOUR ERROR
+app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/sos", sosRoutes);
 app.use("/api/driver", driverRoutes);
-app.use("/api/community", require("./routes/communityRoutes"));
+app.use("/api/community", communityRoutes);
 
-
-// Health check
+/* =======================
+   HEALTH CHECK
+======================= */
 app.get("/", (req, res) => {
-  res.send("Carpool API is running");
+  res.status(200).send("Carpool API is running 🚗");
 });
 
 module.exports = app;
