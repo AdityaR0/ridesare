@@ -1,7 +1,10 @@
 // src/components/Footer.jsx
-// import { FaFacebookF, FaXTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa6";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn } from "react-icons/fa";
-
+import {
+  FaFacebookF,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedinIn,
+} from "react-icons/fa";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -14,7 +17,6 @@ export default function Footer() {
         {/* Brand */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            {/* Logo */}
             <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl shadow">
               🚗
             </div>
@@ -27,10 +29,18 @@ export default function Footer() {
 
           {/* Social Icons */}
           <div className="flex gap-4 text-lg mt-3">
-            <a className="hover:text-white" href="#"><FaFacebookF /></a>
-            <a className="hover:text-white" href="#"><FaXTwitter /></a>
-            <a className="hover:text-white" href="#"><FaInstagram /></a>
-            <a className="hover:text-white" href="#"><FaLinkedinIn /></a>
+            <a href="#" className="hover:text-white">
+              <FaFacebookF />
+            </a>
+            <a href="#" className="hover:text-white">
+              <FaTwitter />
+            </a>
+            <a href="#" className="hover:text-white">
+              <FaInstagram />
+            </a>
+            <a href="#" className="hover:text-white">
+              <FaLinkedinIn />
+            </a>
           </div>
         </div>
 
@@ -70,7 +80,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-center text-xs text-slate-400 text-center">
+        <div className="max-w-6xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
           © {year} RideShare. All rights reserved. • Built for B.Tech Final Year Project.
         </div>
       </div>
